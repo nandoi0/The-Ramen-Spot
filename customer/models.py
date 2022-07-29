@@ -75,7 +75,7 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-   products = models.ForeignKey(Products, on_delete=models.SET_NULL, blank=True, null=True)
+   product = models.ForeignKey(Products, on_delete=models.SET_NULL, blank=True, null=True)
    order = models.ForeignKey(Order, on_delete=models.SET_NULL, blank=True, null=True)
    quantity = models.IntegerField(default=0, null=True, blank=True)
 

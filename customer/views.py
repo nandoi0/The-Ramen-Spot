@@ -25,7 +25,7 @@ def menu(request):
 	
 		items = []
 		order = {'cart_total':0, 'cart_items':0, 'delivery': False}
-		cartItems = order['get_cart_items']
+		cartItems = order['cart_items']
 
 	products = Products.objects.all()
 	context = {'products':products, 'cartItems':cartItems}
