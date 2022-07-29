@@ -1,64 +1,90 @@
-from unicodedata import category
-from urllib import request
 from django.shortcuts import render
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView
 from django.views import View
+from django.http import JsonResponse
+import json
 
-from customer.models import Meals, OrderModel
+from customer.models import *
 
-# Create your views here.
 
 class HomePageView(TemplateView):
     template_name = 'customer/home.html'
 
-class AboutPageView(TemplateView):
-    template_name = 'customer/about.html'
+#class ProductListView(ListView):
+#    model = Products
+ #   template_name = 'customer/menu.html'
+ #   context_object_name = 'products'
 
-class OrderPageView(View):
- def get(self, request, *args, **kwargs):
-     appetizer = Meals.objects.filter(category__name__contains='Appetizer')
-     ramen = Meals.objects.filter(category__name__contains='Ramen')
-     drinks = Meals.objects.filter(category__name__contains='Drink')
+def menu(request):
+	if request.user.is_authenticated:
+		customer = request.user.customer
+		order, created = Order.objects.get_or_create(customer=customer, complete=False)
+		items = order.orderitem_set.all()
+		cartItems = order.cart_items
+	else:
+	
+		items = []
+		order = {'cart_total':0, 'cart_items':0, 'delivery': False}
+		cartItems = order['get_cart_items']
+
+	products = Products.objects.all()
+	context = {'products':products, 'cartItems':cartItems}
+	return render(request, 'customer/menu.html', context)
 
 
-     context = {
-        'appetizer': appetizer,
-        'ramen': ramen,
-        'drinks': drinks,
-     }
+def restaurantCart(request):
 
-     return render(request, 'customer/order.html', context)
- 
- def post(self, request, *args, **kwargs):
-     order_items = {
-        'items': []
-     }
+	if request.user.is_authenticated:
+		customer = request.user.customer
+		order, created = Order.objects.get_or_create(customer=customer, complete=False)
+		items = order.orderitem_set.all()
+		cartItems = order.cart_items
+	else:
+	
+		items = []
+		order = {'cart_total':0, 'cart_items':0, 'delivery': False}
+		cartItems = order['cart_items']
 
-     items = request.POST.getlist('items[]')
+	context = {'items':items, 'order':order, 'cartItems':cartItems}
+	return render(request, 'customer/cart.html', context)
 
-     for item in items:
-        menu_item = Meals.objects.get(pk__contains=int(item))
-        item_data = {
-            'id': menu_item.pk,
-            'name': menu_item.name,
-            'price': menu_item.price
-        }
+def restaurantCheckout(request):
 
-        order_items['items'].append(item_data)
+	if request.user.is_authenticated:
+		customer = request.user.customer
+		order, created = Order.objects.get_or_create(customer=customer, complete=False)
+		items = order.orderitem_set.all()
+		cartItems = order.cart_items
+	else:
+		
+		items = []
+		order = {'cart_total':0, 'cart_items':0, 'delivery': False}
+		cartItems = order['cart_items']
 
-        price = 0
-        items_ids = []
+	context = {'items':items, 'order':order, 'cartItems':cartItems}
+	return render(request, 'customer/checkout.html', context)
 
-        for item in order_items['items']:
-            price += item['price']
-            item_ids.append(item['id'])
+def itemUpdate(request):
+	data = json.loads(request.body)
+	productId = data['productId']
+	action = data['action']
+	print('Action:', action)
+	print('Product', productId)
 
-        order = OrderModel.objects.create(price=price)
-        order.items.add(*item_id)
+	customer = request.user.customer
+	product = Products.objects.get(id=productId)
+	order, created = Order.objects.get_or_create(customer=customer, complete=False)
 
-        context = {
-            'items': order_items['items'],
-            'price': price
-        }
+	orderItem, created = OrderItem.objects.get_or_create(order=order, product=product)
 
-        return render(request, 'customer/order_confirmation.html', context)
+	if action == 'add':
+		orderItem.quantity = (orderItem.quantity + 1)
+	elif action == 'remove':
+		orderItem.quantity = (orderItem.quantity - 1)
+
+	orderItem.save()
+
+	if orderItem.quantity <= 0:
+		orderItem.delete()
+
+	return JsonResponse('Item was added', safe=False)
