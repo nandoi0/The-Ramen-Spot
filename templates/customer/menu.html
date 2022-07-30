@@ -7,12 +7,12 @@
 		<div class="col-lg-4">
 			<img class="thumbnail" src="{{product.imageURL}}">
 			<div class="box-element product">
-				<h6 class="prod-name" style="font-size:large; color: whitesmoke; "><strong>{{product.name}}</strong></h6>
+				<h6 class="prod-name" style="font-size:large; color: rgb(4, 4, 4); "><strong>{{product.name}}</strong></h6>
 				<hr>
 
 				<button  data-product={{product.id}} data-action="add" class="cart btn btn-dark add-btn update-cart">Add to Cart</button>
-				<a class="btn btn-outline-success" href="#">View</a>
-				<h4 style="display: inline-block; font-size: large; color: whitesmoke; float: right"><strong>${{product.price}}</strong></h4>
+				<a class="btn btn-outline-success" href="{% url 'view' %}">View</a>
+				<h4 style="display: inline-block; font-size: large; font-weight:900; color: black; float: right"><strong>${{product.price}}</strong></h4>
 
 			</div>
 		</div>

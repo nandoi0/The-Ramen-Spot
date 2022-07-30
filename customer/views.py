@@ -10,6 +10,9 @@ from customer.models import *
 class HomePageView(TemplateView):
     template_name = 'customer/home.html'
 
+class MenuPageView(TemplateView):
+	template_name = 'customer/view.html'
+
 #class ProductListView(ListView):
 #    model = Products
  #   template_name = 'customer/menu.html'
