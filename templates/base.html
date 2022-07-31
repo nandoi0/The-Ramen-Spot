@@ -56,10 +56,29 @@ var csrftoken = getCookie('csrftoken');
             <li class="nav-item">
               <a class="nav-link" href="{% url 'cart' %}">Cart</a>
             </li>
+            <p class="nav-item" id="cart-total">{{cartItems}}</p>
+            {% if user.is_authenticated %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'password_change' %}">Change Password</a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'login' %}">Login</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'signup' %}">Sign Up</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'password_reset' %}">password reset</a>
+            </li>
+            {% endif %}
           </ul>
          
           
-          <p class="nav-item" id="cart-total">{{cartItems}}</p>
+          
         </div>
       </nav>
     {% block content %}
